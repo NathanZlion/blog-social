@@ -1,6 +1,7 @@
 
 
 import Blog from "../models/blog";
+import User from "../models/user";
 
 export const getAllBlogs = async (req, res, next) => {
     let blogs;
@@ -31,8 +32,8 @@ export const addBlog = async (req, res, next) => {
         return console.log(error);
     }
 
-    if (!existingUser){
-        return res.status(400).json({message: "No user by this id"})
+    if (!existingUser) {
+        return res.status(400).json({ message: "No user by this id" })
     }
 
     const blog = new Blog({
@@ -44,13 +45,13 @@ export const addBlog = async (req, res, next) => {
         // plus we add the blog to the list of blogs for the user
         const session = await mongoose.startSession();
         session.startTransaction();
-        await blog.save({session});
+        await blog.save({ session });
         existingUser.blogs.push(blog);
-        await existingUser.save({session});
+        await existingUser.save({ session });
         await session.commitTransaction();
     } catch (error) {
         console.log(error);
-        return res.status(500).json({message: error});
+        return res.status(500).json({ message: error });
     }
 
     return res.status(200).json({ blog });
@@ -98,7 +99,9 @@ export const deleteById = async (req, res, next) => {
     let blog;
 
     try {
-        blog = await Blog.findByIdAndRemove(blogId);
+        blog = await Blog.findByIdAndRemove(blogId).populate('user');
+        await blog.user.blogs.pull(blog);
+        await blog.user.save();
     } catch (error) {
         return console.log(error);
     }
@@ -108,4 +111,20 @@ export const deleteById = async (req, res, next) => {
     }
 
     return res.status(200).json({ message: "Successfully Deleted" });
+}
+
+export const getByUserId = async (req, res, next) => {
+    const userId = req.params.id;
+    let userBlogs;
+    try {
+        userBlogs = await User.findById(userId).populate("blogs");
+    } catch (error) {
+        return console.log(error);
+    }
+
+    if (!userBlogs) {
+        return res.status(404).json({ message: " No Blogs Found!" });
+    }
+    
+    return res.status(200).json({blogs: userBlogs});
 }
