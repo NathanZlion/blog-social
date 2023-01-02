@@ -1,5 +1,5 @@
 
-
+import mongoose from "mongoose";
 import Blog from "../models/blog";
 import User from "../models/user";
 
@@ -43,6 +43,7 @@ export const addBlog = async (req, res, next) => {
     try {
         // in here we try to save the blog
         // plus we add the blog to the list of blogs for the user
+
         const session = await mongoose.startSession();
         session.startTransaction();
         await blog.save({ session });
@@ -125,6 +126,6 @@ export const getByUserId = async (req, res, next) => {
     if (!userBlogs) {
         return res.status(404).json({ message: " No Blogs Found!" });
     }
-    
-    return res.status(200).json({blogs: userBlogs});
+
+    return res.status(200).json({ blogs: userBlogs });
 }
