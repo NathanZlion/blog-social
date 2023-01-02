@@ -10,10 +10,12 @@ export const getAllUsers = async (req, res, next) => {
         users = await User.find();
     } catch (error) {
         return console.log(error);
+        // some sort of server error
     }
 
     if (!users) {
         return res.status(404).json({ message: "no users found!" });
+        // no users, Empty users list
     }
     return res.status(200).json({ users });
 }

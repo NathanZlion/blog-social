@@ -26,9 +26,4 @@ mongoose
     });
 
 
-// app.use("/api", (req, res, next) => {
-//     res.send("Hello world.")
-// });
-
-
 app.listen(5000);
